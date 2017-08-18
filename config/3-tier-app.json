@@ -1,0 +1,31 @@
+{
+    "virtualMachines": [
+        {
+            "name": "SE-CWAHL-WIN",
+            "mountName": "MOUNT-3TIER-WEB",
+            "guestCred": "guestCred.xml",
+            "testIp": "172.17.50.131",
+            "testNetwork": "VLAN50_Servers_Mount",
+            "testGateway": "172.17.50.1",
+            "tasks": ["Ping","Netlogon"]
+        },
+        {
+            "name": "SE-CWAHL-WIN",
+            "mountName": "MOUNT-3TIER-APP",
+            "guestCred": "guestCred.xml",
+            "testIp": "172.17.50.132",
+            "testNetwork": "VLAN50_Servers_Mount",
+            "testGateway": "172.17.50.1",
+            "tasks": ["Ping","Netlogon"]
+        },
+        {
+            "name": "SE-CWAHL-WIN",
+            "mountName": "MOUNT-3TIER-DB",
+            "guestCred": "guestCred.xml",
+            "testIp": "172.17.50.133",
+            "testNetwork": "VLAN50_Servers_Mount",
+            "testGateway": "172.17.50.1",
+            "tasks": ["Ping","Netlogon"]
+        }
+    ]
+}

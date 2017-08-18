@@ -1,0 +1,22 @@
+{
+    "virtualMachines": [
+        {
+            "name": "SE-CWAHL-WIN",
+            "mountName": "MOUNT-2TIER-APP",
+            "guestCred": "guestCred.xml",
+            "testIp": "172.17.50.121",
+            "testNetwork": "VLAN50_Servers_Mount",
+            "testGateway": "172.17.50.1",
+            "tasks": ["Ping","Netlogon"]
+        },
+        {
+            "name": "SE-CWAHL-WIN",
+            "mountName": "MOUNT-2TIER-DB",
+            "guestCred": "guestCred.xml",
+            "testIp": "172.17.50.122",
+            "testNetwork": "VLAN50_Servers_Mount",
+            "testGateway": "172.17.50.1",
+            "tasks": ["Ping","Netlogon"]
+        }
+    ]
+}

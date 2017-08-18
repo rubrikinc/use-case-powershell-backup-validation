@@ -1,0 +1,6 @@
+{
+    "rubrikServer": "172.17.28.11",
+    "rubrikCred": "rubrikCred.xml",
+    "vmwareServer": "172.17.48.22",
+    "vmwareCred": "vmwareCred.xml"
+}

@@ -1,0 +1,13 @@
+{
+    "virtualMachines": [
+        {
+            "name": "SE-CWAHL-WIN",
+            "mountName": "MOUNT-1TIER-APP",
+            "guestCred": "guestCred.xml",
+            "testIp": "172.17.50.111",
+            "testNetwork": "VLAN50_Servers_Mount",
+            "testGateway": "172.17.50.1",
+            "tasks": ["Ping","Netlogon"]
+        }
+    ]
+}
