@@ -6,7 +6,7 @@ This project is used to provide a framework for serial and parallel application 
 
 As virtual machines running in a VMware environment are backed up and cataloged by Rubrik, each backup or "snapshot" can be Live Mounted for testing and development purposes. This allows for an instant clone to be created that is hosted on the Rubrik filesystem layer and executed on an available ESXi host. A Live Mount takes up minimal space on the Rubrik filesystem because only incoming writes to the guest filesystem need be tracked. Because of this, the Live Mount technology is the perfect solution for quickly bringing up one or more virtual machines for validating the protected applications and services can be restored in the event of a production failure, outage, or disaster.
 
-Using the `Invoke-Build framework`, this project allows for an administrator to declare the topology of an application across one or more virtual machines. The entire collection of virtual machines are Live Mounted as a group and a battery of user-defined tests are applied. Upon the completion of the tests, the Live Mounts are removed and a summary of results are displayed.
+Using the `Invoke-Build` framework, this project allows for an administrator to declare the topology of an application across one or more virtual machines. The entire collection of virtual machines are Live Mounted as a group and a battery of user-defined tests are applied. Upon the completion of the tests, the Live Mounts are removed and a summary of results are displayed.
 
 ## Prerequisites
 
