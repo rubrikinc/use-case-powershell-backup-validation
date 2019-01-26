@@ -1,4 +1,4 @@
-# PowerShell Backup Validation
+# Backup Validation with PowerShell
 This project is used to provide a framework for serial and parallel application testing against workloads that have been protected by Rubrik's Cloud Data Management platform.
 
 ## Abstract
