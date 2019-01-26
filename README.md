@@ -15,6 +15,7 @@ Using the `Invoke-Build` framework, this project allows for an administrator to 
 
 ## Prerequisites
 
+* [PowerShell](https://aka.ms/getps6)
 * [Rubrik PowerShell Module](https://www.powershellgallery.com/packages/Rubrik/)
 * [VMware PowerCLI](https://www.powershellgallery.com/packages/VMware.PowerCLI/)
 * [InvokeBuild](https://www.powershellgallery.com/packages/InvokeBuild/)
