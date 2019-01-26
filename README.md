@@ -6,7 +6,7 @@ Using the `Invoke-Build` framework, this project allows for an administrator to 
 
 ## Quick Start
 
-* [Quick Start Guide](https://github.com/rubrikinc/Use-Case-PowerShell-Backup-Validation/blob/master/docs/quickstart.md)
+* [Quick Start Guide](https://github.com/rubrikinc/Use-Case-PowerShell-Backup-Validation/blob/master/docs/quick-start.md)
 
 ## Documentation
 
