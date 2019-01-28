@@ -318,4 +318,4 @@ This section contains links to sources of documentation and information that pro
 [VMware PowerCLI User Guide](https://vdc-download.vmware.com/vmwb-repository/dcr-public/2156d7ad-8f0f-4001-9de5-0cb95340873b/84fc3e8c-4755-4376-9917-18eb49a6bcdf/vmware-powercli-111-user-guide.pdf)
 
 ### `InvokeBuild`
-[`Ivoke-Build` Project Wiki](https://github.com/nightroman/Invoke-Build/wiki)
+[`Invoke-Build` Project Wiki](https://github.com/nightroman/Invoke-Build/wiki)
