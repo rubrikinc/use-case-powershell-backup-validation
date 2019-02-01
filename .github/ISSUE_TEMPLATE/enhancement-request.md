@@ -1,14 +1,22 @@
 ---
 name: Enhancement Request
-about: Suggest an idea for this project
+about: Suggest an enhancement to the Rubrik Use Case for Backup Validation via PowerShell
 title: ''
-labels: ''
+labels: kind-enhancement
 assignees: ''
 
 ---
 
-**What would you like to be added**:
+<!-- Please only use this template for submitting enhancement requests -->
 
-**Why is this needed**:
+**Overview of Enhancement Request**
 
-**Additional context**
+Please describe what is enhancement or feature is requested. 
+
+**Why is this needed**
+
+Why is this needed? Please provide details as to the use case.
+
+**Additional Context**
+
+Use this section to provide any additional information as to why this is needed. 
