@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Report a bug encountered while using the Rubrik SDK for Python.
+about: Report a bug encountered while using the Rubrik Use Case for Backup Validation via PowerShell.
 title: ''
 labels: kind-bug
 assignees: ''
