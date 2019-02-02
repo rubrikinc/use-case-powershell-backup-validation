@@ -92,3 +92,14 @@ $Splat = @{
 
 Invoke-Build @Splat -Result Result
 ```
+
+## Additional Links
+* [VIDEO: Getting Started with the Backup Validation Use Case](https://www.youtube.com/watch?v=OCmFpno268M&feature=youtu.be)
+
+## Contributing
+We glady welcome contributions from the community. From updating the documentation to adding more tests for this use case, all ideas are welcome!
+
+* [Contributing Guide](https://github.com/rubrikinc/use-case-powershell-backup-validation/blob/master/CONTRIBUTING.md)
+
+## License
+* [MIT License](https://github.com/rubrikinc/use-case-powershell-backup-validation/blob/master/LICENSE)
