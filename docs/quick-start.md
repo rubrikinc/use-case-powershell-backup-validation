@@ -8,6 +8,7 @@ As virtual machines running in a VMware environment are backed up and cataloged 
 
 * [PowerShell](https://aka.ms/getps6)
 * [Rubrik PowerShell Module](https://www.powershellgallery.com/packages/Rubrik/)
+* [Rubrik PowerShell Backup Validation Module](https://github.com/rubrikinc/rubrik-module-for-powershell-backup-validation)
 * [VMware PowerCLI](https://www.powershellgallery.com/packages/VMware.PowerCLI/)
 * [InvokeBuild](https://www.powershellgallery.com/packages/InvokeBuild/)
 
@@ -16,6 +17,7 @@ Once you have PowerShell installed on your system you can install the required m
 
 ```
 Install-Module -Name Rubrik -Scope CurrentUser
+Install-Module -Name RubrikBackupValidation -Scope CurrentUser
 Install-Module -Name VMware.PowerCLI -Scope CurrentUser
 Install-Module -Name InvokeBuild -Scope CurrentUser
 ```
@@ -26,12 +28,20 @@ This will install the modules in the current user scope and will not require loc
 
 ```
 Install-Module -Name Rubrik -Scope AllUsers
+Install-Module -Name RubrikBackupValidation -Scope AllUsers
 Install-Module -Name VMware.PowerCLI -Scope AllUsers
 Install-Module -Name InvokeBuild -Scope AllUsers
 ```
 
 ## Verify installation
-We can use the `Get-Module` cmdlet to verify if a module is successfully installed:
+The Rubrik PowerShell Backup Validation module, provides us with a function that can verify if we have all required modules properly installed, the `Test-PowerShellDependency` function:
+
+```
+Test-PowerShellDependency
+```
+![alt text](/img/image10.png)
+
+Alternatively, we can use the `Get-Module` cmdlet to verify if all modules are successfully installed:
 
 ```
 'Rubrik', 'VMware.PowerCLI', 'InvokeBuild' | ForEach-Object {
@@ -58,6 +68,9 @@ This use case leverages several PowerShell modules, outlined in this section.
 
 #### Rubrik SDK for PowerShell
 Rubrik’s API first architecture enables organizations to embrace and integrate Rubrik functionality into their existing automation processes. While Rubrik APIs can be consumed natively, companies are at various stages in their automation journey with different levels of automation knowledge on staff. The Rubrik SDK for PowerShell is a project that provides a Microsoft PowerShell module for managing and monitoring Rubrik's Cloud Data Management fabric by way of published RESTful APIs.
+
+#### Rubrik PowerShell Backup Validation
+This module has been created to help validate and verify the different components of a Backup Validation. It provides functions to generate the different Json files, allowing for this to be automated. Furthermore, it comes bundled with the `New-BuildConfiguration` function, that assists with the creation and validation of your backup validation scenario, by providing an interactive experience in which leads the administrator through the process of creating your first backup validation scenario.
 
 #### VMware PowerCLI
 VMware PowerCLI is a PowerShell module built by VMware. It provides a command-line and scripting tool with hundreds of cmdlets to manage and automate tasks using PowerShell. It is available in the PowerShell Gallery, which makes it easy to install and update.
@@ -281,8 +294,81 @@ We can now verify that this command successfully created the files containing th
 ```
 Get-ChildItem ..\credentials\
 ```
-
 ![alt text](/img/image7.png)
+
+## Validate Backup with RubrikValidateBackup module
+
+This chapter will discuss how the the Rubrik Validate Backup Module can be used to help automate the creation of a new Backup Validation workflow.
+
+### Prepare environment
+
+To get started we will download the Build Validation package and extract it to a folder named "Backup Validations". The package is available in the [Use-Case-PowerShell-Backup-Validation](https://github.com/rubrikinc/Use-Case-PowerShell-Backup-Validation) repository. The zipped file is available for download [here](https://github.com/rubrikinc/Use-Case-PowerShell-Backup-Validation/archive/master.zip).
+
+### Interactive Configuration Generation
+
+Because the sheer amount of options that need to be configured it can be overwhelming to generate the first configuration. To assist with this process the `New-BuildConfiguration` function has been created. This will provide an interactive experience in which the configuration will not only be generated, but also provides the possibility to validate and run the first backup validation job.
+
+```
+New-BuildConfiguration
+```
+![alt text](/img/image11.png)
+
+By typing either yes or no we get the option to view the most recent version of Quick Start guide for Backup Validation.
+![alt text](/img/image12.png)
+
+The default browser will be used to open the website.
+
+![alt text](/img/image13.png)
+
+In the following step we are requested to enter in the credentials for the Rubrik cluster, vCenter and the Guest OS. Since we are running this on Windows the credentials will be stored in encrypted xml files. If we run this same command on macOS the credentials will be stored in keychain.
+
+![alt text](/img/image14.png)
+
+In the next step we will generate the `TestEnv.json` file, which contains the environment information, the IP address (or FQDN) of both the Rubrik Cluster and vCenter together with the corresponding credentials for authentication.
+
+Afterwards we get prompted if we want to create an additional environment file, this is an optional step that can be used in case you would like to define multiple different environments to run your backup validation tests against.
+
+![alt text](/img/image15.png)
+
+Now we can define the configuration information for our VM, we are asked for several parameters to fill in. This information will be used to Live Mount the selected VM and configure and check the tasks that we select. Because Tasks is an array, it will continue prompting for more entries, it will take an empty entry as the end of the list.
+
+![alt text](/img/image16.png)
+
+Now that we have created the Environment and Config json files and securely stored our credentials, we are prompted to have our configuration validated.
+
+![alt text](/img/image17.png)
+
+The next prompt is to validate we have the required modules installed and available for backup validation to run. If you already validated this in an earlier step this can be skipped by answering no.
+
+![alt text](/img/image18.png)
+
+In the last step we are asked to specify which files we would like to use to start the backup validation. If everything has correctly been filled in, you will be able to follow the process of the Backup Validation from the console.
+
+### New-ConfigJson
+
+This function can be used to programmatically generate the config json files. The following parameters are used by this function:
+
+![alt text](/img/image19.png)
+
+An example of how this can be used it the following:
+
+```
+Get-RubrikVM | Get-Random | ForEach-Object {
+    $Splat = [ordered]@{
+        ConfigFilePath = "$($_.Name).json"
+        Name = $_.Name
+        MountName = 'LiveMnt-{0}' -f $_.Name
+        GuestCred = 'GuestCred.xml'
+        TestIp = '172.24.1.1'
+        TestNetwork = 'ISOLATED_VLAN'
+        TestGateway = '172.24.1.100'
+        Tasks = 'Ping'
+    }
+    New-ConfigJson @Splat
+}
+```
+
+This will select a random virtual machine and create a `config.json` which can then be used for backup validation. 
 
 ### Run `Invoke-Build`
 Once the Environment, Config, and Identity requirements are met, use the Invoke-Build function to execute a build. Here is a sample command using a PowerShell technique called splatting to store the parameters and arguments and execute `Invoke-Build`.
