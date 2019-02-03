@@ -396,12 +396,12 @@ Upon completion of all the build tests we can see that all our build tests have 
 This section contains links to sources of documentation and information that provide further information about the individual components.
 
 ### Rubrik SDK for PowerShell
-[Rubrik SDK for PowerShell Documentation](http://rubrikinc.github.io/rubrik-sdk-for-powershell/)
-[VIDEO: Getting Started with the Rubrik SDK for PowerShell](https://www.youtube.com/watch?v=tY6nQLNYRSE)
-[Rubrik SDK for PowerShell](https://github.com/rubrikinc/rubrik-sdk-for-powershell)
+* [Rubrik SDK for PowerShell Documentation](http://rubrikinc.github.io/rubrik-sdk-for-powershell/)
+* [VIDEO: Getting Started with the Rubrik SDK for PowerShell](https://www.youtube.com/watch?v=tY6nQLNYRSE)
+* [Rubrik SDK for PowerShell](https://github.com/rubrikinc/rubrik-sdk-for-powershell)
 
 ### VMware PowerCLI
-[VMware PowerCLI User Guide](https://vdc-download.vmware.com/vmwb-repository/dcr-public/2156d7ad-8f0f-4001-9de5-0cb95340873b/84fc3e8c-4755-4376-9917-18eb49a6bcdf/vmware-powercli-111-user-guide.pdf)
+* [VMware PowerCLI User Guide](https://vdc-download.vmware.com/vmwb-repository/dcr-public/2156d7ad-8f0f-4001-9de5-0cb95340873b/84fc3e8c-4755-4376-9917-18eb49a6bcdf/vmware-powercli-111-user-guide.pdf)
 
 ### `InvokeBuild`
-[`Invoke-Build` Project Wiki](https://github.com/nightroman/Invoke-Build/wiki)
+* [`Invoke-Build` Project Wiki](https://github.com/nightroman/Invoke-Build/wiki)
