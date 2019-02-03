@@ -150,7 +150,7 @@ Secure XML files can only be decrypted by the user account that created them, th
 
 ![alt text](/img/image3.png)
 
-It is also important to note that these files can only be created on Windows systems. Both PowerShell and PowerShell Core support storing credentials on disk. This functionality is not available on other operating systems because Export-Clixml cannot be used to encrypt credentials as seen in the following screenshot running PowerShell Core on Ubuntu.
+It is also important to note that these files can only be created on Windows systems. Both PowerShell and PowerShell Core support storing credentials on disk. This functionality is not available on other operating systems because `Export-Clixml` cannot be used to encrypt credentials as seen in the following screenshot running PowerShell Core on Ubuntu.
 
 ![alt text](/img/image4.png)
 
@@ -263,7 +263,7 @@ To get started we will download the Build Validation package and extract it to a
 #### Configure Environment Files
 In the Environment files make sure that the correct IP addresses or FQDNs are listed for both the Rubrik Cluster as well as the vCenter cluster.
 
-When specify the credentials, just the filename is required as we will specify the specific path when running the Invoke-Build function.
+When specify the credentials, just the filename is required as we will specify the specific path when running the `Invoke-Build` function.
 
 #### Configure Config Files
 In the Config files a number of configuration options are available:
@@ -371,7 +371,7 @@ Get-RubrikVM | Get-Random | ForEach-Object {
 This will select a random virtual machine and create a `config.json` which can then be used for backup validation. 
 
 ### Run `Invoke-Build`
-Once the Environment, Config, and Identity requirements are met, use the Invoke-Build function to execute a build. Here is a sample command using a PowerShell technique called splatting to store the parameters and arguments and execute `Invoke-Build`.
+Once the Environment, Config, and Identity requirements are met, use the `Invoke-Build` function to execute a build. Here is a sample command using a PowerShell technique called splatting to store the parameters and arguments and execute `Invoke-Build`.
 
 ```
 $Splat = @{
