@@ -4,16 +4,9 @@ This project is used to provide a framework for serial and parallel application 
 
 Using the `Invoke-Build` framework, this project allows for an administrator to declare the topology of an application across one or more virtual machines. The entire collection of virtual machines are Live Mounted as a group and a battery of user-defined tests are applied. Upon the completion of the tests, the Live Mounts are removed and a summary of results are displayed.
 
-## Quick Start
+# :white_check_mark: Prerequisites
 
-* [Quick Start Guide](https://github.com/rubrikinc/Use-Case-PowerShell-Backup-Validation/blob/master/docs/quick-start.md)
-
-## Documentation
-
-* [Rubrik SDK for Powershell Documentation](http://rubrikinc.github.io/rubrik-sdk-for-powershell/)
-* [Rubrik API Documentation](https://github.com/rubrikinc/api-documentation)
-
-## Prerequisites
+There are a few services you'll need in order to get this project off the ground:
 
 * [PowerShell](https://aka.ms/getps6)
 * [Rubrik PowerShell Module](https://www.powershellgallery.com/packages/Rubrik/)
@@ -21,7 +14,8 @@ Using the `Invoke-Build` framework, this project allows for an administrator to 
 * [VMware PowerCLI](https://www.powershellgallery.com/packages/VMware.PowerCLI/)
 * [InvokeBuild](https://www.powershellgallery.com/packages/InvokeBuild/)
 
-## Installation
+
+# :hammer: Installation
 
 This folder can be dropped anywhere on your workstation that has network connectivity to a Rubrik cluster and related vCenter Server.
 
@@ -94,13 +88,28 @@ $Splat = @{
 Invoke-Build @Splat -Result Result
 ```
 
-## Additional Links
+# :blue_book: Documentation 
+
+Here are some resources to get you started! If you find any challenges from this project are not properly documented or are unclear, please [raise an issue](https://github.com/rubrikinc/use-case-powershell-backup-validation/issues/new/choose) and let us know! This is a fun, safe environment - don't worry if you're a GitHub newbie! :heart:
+
+* [Quick Start Guide](https://github.com/rubrikinc/Use-Case-PowerShell-Backup-Validation/blob/master/docs/quick-start.md)
+* [Rubrik SDK for Powershell Documentation](http://rubrikinc.github.io/rubrik-sdk-for-powershell/)
+* [Rubrik API Documentation](https://github.com/rubrikinc/api-documentation)
 * [VIDEO: Getting Started with the Backup Validation Use Case](https://www.youtube.com/watch?v=OCmFpno268M&feature=youtu.be)
 
-## Contributing
-We glady welcome contributions from the community. From updating the documentation to adding more tests for this use case, all ideas are welcome!
+# :muscle: How You Can Help
 
-* [Contributing Guide](https://github.com/rubrikinc/use-case-powershell-backup-validation/blob/master/CONTRIBUTING.md)
+We glady welcome contributions from the community. From updating the documentation to adding more tests for this framework, all ideas are welcome. Thank you in advance for all of your issues, pull requests, and comments! :star:
 
-## License
-* [MIT License](https://github.com/rubrikinc/use-case-powershell-backup-validation/blob/master/LICENSE)
+* [Contributing Guide](CONTRIBUTING.md)
+* [Code of Conduct](CODE_OF_CONDUCT.md)
+
+# :pushpin: License
+
+* [MIT License](LICENSE)
+
+# :point_right: About Rubrik Build
+
+We encourage all contributors to become members. We aim to grow an active, healthy community of contributors, reviewers, and code owners. Learn more in our [Welcome to the Rubrik Build Community](https://github.com/rubrikinc/welcome-to-rubrik-build) page.
+
+We'd  love to hear from you! Email us: build@rubrik.com :love_letter:
