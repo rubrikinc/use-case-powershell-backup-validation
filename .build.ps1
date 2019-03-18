@@ -63,7 +63,7 @@ task ValidateLiveMount {
                 Start-Sleep 5
             }
             else {
-                break
+                throw "$($Config.virtualMachines[$i].mountName) mount failed, exiting Build script. Previously live mounted VMs will continue running"
             }
         }
         $i++
