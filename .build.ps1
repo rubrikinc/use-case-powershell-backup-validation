@@ -108,7 +108,7 @@ task MoveLiveMountNetworkAddress {
         # Keeping the guest credential value local since it may only apply to the individual virtual machine in some cases
         $GuestCredential = Import-Clixml -Path ($IdentityPath + $($Config.virtualMachines[$i].guestCred))
         $splat = @{
-            ScriptText      = 'Get-NetAdapter | where {$_.Status -eq "Up"} | New-NetIPAddress -IPAddress ' + $Config.virtualMachines[$i].testIp + ' -PrefixLength 24 -DefaultGateway ' + $Config.virtualMachines[$i].testGateway
+            ScriptText      = 'Get-NetAdapter | where {$_.Status -eq "Up"} | New-NetIPAddress -IPAddress ' + $Config.virtualMachines[$i].testIp + ' -PrefixLength ' + $Config.virtualMachines[$i].subnet + ' -DefaultGateway ' + $Config.virtualMachines[$i].testGateway
             ScriptType      = 'PowerShell'
             VM              = $Config.virtualMachines[$i].mountName
             GuestCredential = $GuestCredential
