@@ -25,6 +25,7 @@ task GetConfig {
 
 # Synopsis: Establish connectivity to a Rubrik Cluster
 task ConnectRubrik {
+    Write-Verbose -Message "Importing Credential file: $($IdentityPath + $Environment.rubrikCred)"
     $Credential = Import-Clixml -Path ($IdentityPath + $Environment.rubrikCred)
     $null = Connect-Rubrik -Server $Environment.rubrikServer -Credential $Credential
     Write-Verbose -Message "Rubrik Status: Connected to $($rubrikConnection.server)" -Verbose
