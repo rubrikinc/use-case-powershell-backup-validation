@@ -118,6 +118,7 @@ task MoveLiveMountNetworkAddress {
     $i = 0
     foreach ($Mount in $MountArray) {
         # Keeping the guest credential value local since it may only apply to the individual virtual machine in some cases
+        Write-Verbose -Message "Importing Credential file: $($IdentityPath + $Environment.guestCred)"
         $GuestCredential = Import-Clixml -Path ($IdentityPath + $($Config.virtualMachines[$i].guestCred))
         $splat = @{
             ScriptText      = 'Get-NetAdapter | where {$_.Status -eq "Up"} | New-NetIPAddress -IPAddress ' + $Config.virtualMachines[$i].testIp + ' -PrefixLength ' + $Config.virtualMachines[$i].subnet + ' -DefaultGateway ' + $Config.virtualMachines[$i].testGateway
