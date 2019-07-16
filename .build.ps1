@@ -32,6 +32,7 @@ task ConnectRubrik {
 
 # Synopsis: Establish connectivity to a VMware vCenter Server
 task ConnectVMware {
+    Write-Verbose -Message "Importing Credential file: $($IdentityPath + $Environment.vmwareCred)"
     $Credential = Import-Clixml -Path ($IdentityPath + $Environment.vmwareCred)
     $null = Connect-VIServer -Server $Environment.vmwareServer -Credential $Credential
     Write-Verbose -Message "VMware Status: Connected to $($global:DefaultVIServer.Name)" -Verbose
