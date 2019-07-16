@@ -96,10 +96,13 @@ task ValidateLiveMountTools {
 task MoveLiveMountNetwork {
     $i = 0
     foreach ($Mount in $MountArray) {
-        $ValidateNetwork = Get-NetworkAdapter -VM $Config.virtualMachines[$i].mountName | Set-NetworkAdapter `
-            -NetworkName $Config.virtualMachines[$i].testNetwork `
-            -Connected:$true `
-            -Confirm:$false
+        $SplatNetAdapter = @{
+            NetworkName  = $Config.virtualMachines[$i].testNetwork
+            Connected    = $true
+            Confirm      = $false
+        }
+        $ValidateNetwork = Get-NetworkAdapter -VM $Config.virtualMachines[$i].mountName |
+            Set-NetworkAdapter @SplatNetAdapter
         Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) Network Status: $($ValidateNetwork.NetworkName) is $($ValidateNetwork.ConnectionState)" -Verbose
         $i++
     }
