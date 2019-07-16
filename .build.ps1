@@ -63,10 +63,11 @@ task ValidateLiveMount {
             $ValidateRequest = (Get-RubrikRequest -id $Mount.id -Type vmware/vm).status
             $ValidatePowerOn = (Get-VM -Name $Config.virtualMachines[$i].mountName -ErrorAction:SilentlyContinue).PowerState
             Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) Status: Request is $ValidateRequest, PowerState is $ValidatePowerOn" -Verbose
-            if ($ValidateRequest -ne 'SUCCEEDED' -or $ValidatePowerOn -ne 'PoweredOn') {                
+            if ($ValidateRequest -eq 'RUNNING' -and $ValidatePowerOn -ne 'PoweredOn') {                
                 Start-Sleep 5
-            }
-            else {
+            } elseif ($ValidateRequest -eq 'SUCCEEDED' -and $ValidatePowerOn -eq 'PoweredOn') {
+                break
+            } else {
                 throw "$($Config.virtualMachines[$i].mountName) mount failed, exiting Build script. Previously live mounted VMs will continue running"
             }
         }
