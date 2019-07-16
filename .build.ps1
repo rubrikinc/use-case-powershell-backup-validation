@@ -44,7 +44,9 @@ task CreateLiveMount {
     [Array]$Script:MountArray = $null
     foreach ($VM in $Config.virtualMachines) {
         # The resulting Live Mount has the network interface disabled
-        $MountRequest = Get-RubrikVM $VM.name | Get-RubrikSnapshot -Date (Get-Date) | New-RubrikMount -MountName $VM.mountName -PowerOn -DisableNetwork $true -Confirm:$false
+        $MountRequest = Get-RubrikVM $VM.name |
+            Get-RubrikSnapshot -Date (Get-Date) |
+            New-RubrikMount -MountName $VM.mountName -PowerOn:$true -DisableNetwork:$true -Confirm:$false
         Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) Request Created: $($MountRequest.id)" -Verbose
         $Script:MountArray += $MountRequest
         $i++
