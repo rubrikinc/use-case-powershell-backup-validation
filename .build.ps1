@@ -160,20 +160,30 @@ task MoveLiveMountNetworkAddress {
         }
         $TestInterfaceMAC = ((Get-NetworkAdapter -VM $Config.virtualMachines[$i].mountName | Select-Object -first 1).MacAddress).ToLower() -replace ":","-"
         $splat = @{
-            ScriptText      = '$SplatNewIP = @{
-                                IPAddress = $Config.virtualMachines[$i].testIp
-                                PrefixLength = $Config.virtualMachines[$i].testSubnet
-                                DefaultGateway = $Config.virtualMachines[$i].testGateway
-                                ErrorAction = "SilentlyContinue"
-                              }
-                              Get-NetAdapter | where {($_.MacAddress).ToLower() -eq "{0}"
-                              New-NetIPAddress @SplatNewIP' -f $TestInterfaceMAC
+            ScriptText      = 'Get-NetAdapter | where {($_.MacAddress).ToLower() -eq "' + $TestInterfaceMAC + '"} | Remove-NetRoute -Confirm:$false -ErrorAction SilentlyContinue;`
+                               Get-NetAdapter | where {($_.MacAddress).ToLower() -eq "' + $TestInterfaceMAC + '"} | Get-NetIPAddress | Remove-NetIPAddress -confirm:$false;`
+                               Get-NetAdapter | where {($_.MacAddress).ToLower() -eq "' + $TestInterfaceMAC + '"} | `
+                               New-NetIPAddress -IPAddress ' + $Config.virtualMachines[$i].testIp + ' -PrefixLength ' + $Config.virtualMachines[$i].testSubnet + `
+                               ' -DefaultGateway ' + $Config.virtualMachines[$i].testGateway
             ScriptType      = 'PowerShell'
             VM              = $Config.virtualMachines[$i].mountName
             GuestCredential = $GuestCredential
         }
-        $VMScript_return = Invoke-VMScript @splat -ErrorAction Stop
-        Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) Network Address Status: Assigned to $($Config.virtualMachines[$i].testIp)" -Verbose
+        $output = Invoke-VMScript @splat -ErrorAction Stop
+        $splat = @{
+            ScriptText      = '(Get-NetAdapter| where {($_.MacAddress).ToLower() -eq "' + $TestInterfaceMAC + '"} | Get-NetIPAddress -AddressFamily IPv4).IPAddress'
+            ScriptType      = 'PowerShell'
+            VM              = $Config.virtualMachines[$i].mountName
+            GuestCredential = $GuestCredential
+        }
+        $output = Invoke-VMScript @splat -ErrorAction Stop
+        $new_ip = $output.ScriptOutput -replace "`r`n", ""
+        if ( $new_ip -eq $Config.virtualMachines[$i].testIp ) {
+            Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) Network Address Status: Assigned to $($new_ip)"
+        }
+        else {
+            throw "$($Config.virtualMachines[$i].mountName) changing ip to $($Config.virtualMachines[$i].testIp) failed, exiting Build script. Previously live mounted VMs will continue running"
+        }
         $i++
     }
 }
