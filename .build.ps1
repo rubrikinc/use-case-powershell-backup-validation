@@ -118,15 +118,29 @@ task MoveLiveMountNetworkAddress {
     $i = 0
     foreach ($Mount in $MountArray) {
         # Keeping the guest credential value local since it may only apply to the individual virtual machine in some cases
-        Write-Verbose -Message "Importing Credential file: $($IdentityPath + $Environment.guestCred)"
-        $GuestCredential = Import-Clixml -Path ($IdentityPath + $($Config.virtualMachines[$i].guestCred))
+        if ( Get-Variable -Name "$Config.virtualMachines[$i].guestCred" -ErrorAction SilentlyContinue ) {
+            Write-Verbose -Message "Importing Credential file: $($IdentityPath + $($Config.virtualMachines[$i].guestCred))"
+            $GuestCredential = Import-Clixml -Path ($IdentityPath + $($Config.virtualMachines[$i].guestCred))
+        }
+        else {
+            Write-Verbose -Message "Importing Credential file: $($IdentityPath + "guestCred.XML")"
+            $GuestCredential = Import-Clixml -Path ($IdentityPath + "guestCred.XML")
+        }
+        $TestInterfaceMAC = ((Get-NetworkAdapter -VM $Config.virtualMachines[$i].mountName | Select-Object -first 1).MacAddress).ToLower() -replace ":","-"
         $splat = @{
-            ScriptText      = 'Get-NetAdapter | where {$_.Status -eq "Up"} | New-NetIPAddress -IPAddress ' + $Config.virtualMachines[$i].testIp + ' -PrefixLength ' + $Config.virtualMachines[$i].subnet + ' -DefaultGateway ' + $Config.virtualMachines[$i].testGateway
+            ScriptText      = '$SplatNewIP = @{
+                                IPAddress = $Config.virtualMachines[$i].testIp
+                                PrefixLength = $Config.virtualMachines[$i].testSubnet
+                                DefaultGateway = $Config.virtualMachines[$i].testGateway
+                                ErrorAction = "SilentlyContinue"
+                              }
+                              Get-NetAdapter | where {($_.MacAddress).ToLower() -eq "{0}"
+                              New-NetIPAddress @SplatNewIP' -f $TestInterfaceMAC
             ScriptType      = 'PowerShell'
             VM              = $Config.virtualMachines[$i].mountName
             GuestCredential = $GuestCredential
         }
-        $null = Invoke-VMScript @splat -ErrorAction Stop
+        $VMScript_return = Invoke-VMScript @splat -ErrorAction Stop
         Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) Network Address Status: Assigned to $($Config.virtualMachines[$i].testIp)" -Verbose
         $i++
     }
