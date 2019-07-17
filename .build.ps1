@@ -174,14 +174,18 @@ task MoveLiveMountNetworkAddress {
             VM              = $Config.virtualMachines[$i].mountName
             GuestCredential = $GuestCredential
         }
+        Write-Verbose "Remote script:`n$($splat['ScriptText'])" -Verbose
         $output = Invoke-VMScript @splat -ErrorAction Stop
+        Write-Verbose "Remote script output:`n$($output.ScriptOutput)" -Verbose
         $splat = @{
             ScriptText      = '(Get-NetAdapter| where {($_.MacAddress).ToLower() -eq "' + $TestInterfaceMAC + '"} | Get-NetIPAddress -AddressFamily IPv4).IPAddress'
             ScriptType      = 'PowerShell'
             VM              = $Config.virtualMachines[$i].mountName
             GuestCredential = $GuestCredential
         }
+        Write-Verbose "Remote script:`n$($splat['ScriptText'])" -Verbose
         $output = Invoke-VMScript @splat -ErrorAction Stop
+        Write-Verbose "Remote script output:`n$($output.ScriptOutput)" -Verbose
         $new_ip = $output.ScriptOutput -replace "`r`n", ""
         if ( $new_ip -eq $Config.virtualMachines[$i].testIp ) {
             Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) Network Address Status: Assigned to $($new_ip)"
@@ -228,8 +232,8 @@ ConnectVMware
 task 3_LiveMount `
 CreateLiveMount,
 ValidateLiveMount,
-ValidateLiveMountTools,
-ValidateRemoteScriptExecution
+ValidateLiveMountTools
+#ValidateRemoteScriptExecution
 
 task 4_LiveMountNetwork `
 MoveLiveMountNetworkAddress,
