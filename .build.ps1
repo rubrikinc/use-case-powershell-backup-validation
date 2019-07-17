@@ -123,7 +123,7 @@ task ValidateRemoteScriptExecution {
             Sleep -Seconds 5
             
             if ($i -gt 5) {
-                throw "Could not execute script on "$($Config.virtualMachines[$i].mountName)..."
+                throw "Could not execute script on: $($Config.virtualMachines[$i].mountName)..."
             }
         }
     }
