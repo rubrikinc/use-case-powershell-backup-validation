@@ -106,7 +106,7 @@ task ValidateRemoteScriptExecution {
     foreach ($Mount in $MountArray) {
         while ($true) {
             $i = 1
-            Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) testing script execution, attempt '$i'..." -Verbose
+            Write-Verbose -Message "Testing script execution on '$($Config.virtualMachines[$i].mountName)', attempt '$i'..." -Verbose
             $splat = @{
                 ScriptText      = 'hostname'
                 ScriptType      = 'PowerShell'
