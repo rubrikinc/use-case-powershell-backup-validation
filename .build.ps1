@@ -103,10 +103,11 @@ task ValidateLiveMountTools {
 }
 
 task ValidateRemoteScriptExecution {
+    $i = 0
     foreach ($Mount in $MountArray) {
         while ($true) {
-            $i = 1
-            Write-Verbose -Message "Testing script execution on '$($Config.virtualMachines[$i].mountName)', attempt '$i'..." -Verbose
+            $LoopCount = 1
+            Write-Verbose -Message "Testing script execution on '$($Config.virtualMachines[$i].mountName)', attempt '$LoopCount'..." -Verbose
             $splat = @{
                 ScriptText      = 'hostname'
                 ScriptType      = 'PowerShell'
@@ -119,13 +120,14 @@ task ValidateRemoteScriptExecution {
                 break
             } catch { }
             
-            $i++
+            $LoopCount++
             Sleep -Seconds 5
             
-            if ($i -gt 5) {
+            if ($LoopCount -gt 5) {
                 throw "Could not execute script on: $($Config.virtualMachines[$i].mountName)..."
             }
         }
+        $i++
     }
 }
 
