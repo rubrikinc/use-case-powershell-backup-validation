@@ -73,7 +73,7 @@ task ValidateLiveMount {
             $ValidateRequest = (Get-RubrikRequest -id $Mount.id -Type vmware/vm).status
             $ValidatePowerOn = (Get-VM -Name $Config.virtualMachines[$i].mountName -ErrorAction:SilentlyContinue).PowerState
             Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) Status: Request is $ValidateRequest, PowerState is $ValidatePowerOn" -Verbose
-            if ($ValidateRequest -contains @('RUNNING','ACQUIRING','QUEUED','FINISHING')) {                
+            if ($ValidateRequest -in @('RUNNING','ACQUIRING','QUEUED','FINISHING')) {                
                 Start-Sleep 5
             } elseif ($ValidateRequest -eq 'SUCCEEDED' -and $ValidatePowerOn -eq 'PoweredOn') {
                 break
