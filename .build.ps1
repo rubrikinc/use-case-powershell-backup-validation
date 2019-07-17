@@ -152,14 +152,17 @@ task MoveLiveMountNetworkAddress {
     $i = 0
     foreach ($Mount in $MountArray) {
         # Keeping the guest credential value local since it may only apply to the individual virtual machine in some cases
+        # Try per vm guest credentials first
         if ( Get-Variable -Name "$Config.virtualMachines[$i].guestCred" -ErrorAction SilentlyContinue ) {
             Write-Verbose -Message "Importing Credential file: $($IdentityPath + $($Config.virtualMachines[$i].guestCred))"
             $GuestCredential = Import-Clixml -Path ($IdentityPath + $($Config.virtualMachines[$i].guestCred))
         }
+        # Use global guest credentials
         else {
             Write-Verbose -Message "Importing Credential file: $($IdentityPath + "guestCred.XML")"
             $GuestCredential = Import-Clixml -Path ($IdentityPath + "guestCred.XML")
         }
+        # Find the first network interface's MAC 
         $TestInterfaceMAC = ((Get-NetworkAdapter -VM $Config.virtualMachines[$i].mountName | Select-Object -first 1).MacAddress).ToLower() -replace ":","-"
         $splat = @{
             ScriptText      = 'Get-NetAdapter | where {($_.MacAddress).ToLower() -eq "' + $TestInterfaceMAC + '"} | Remove-NetRoute -Confirm:$false -ErrorAction SilentlyContinue;`
@@ -184,7 +187,7 @@ task MoveLiveMountNetworkAddress {
             Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) Network Address Status: Assigned to $($new_ip)"
         }
         else {
-            throw "$($Config.virtualMachines[$i].mountName) changing ip to $($Config.virtualMachines[$i].testIp) failed, exiting Build script. Previously live mounted VMs will continue running"
+            throw "$($Config.virtualMachines[$i].mountName) changing ip to $($Config.virtualMachines[$i].testIp) failed, exiting Build script.  Previously live mounted VMs will continue running"
         }
         $i++
     }
