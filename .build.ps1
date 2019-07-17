@@ -105,8 +105,8 @@ task ValidateLiveMountTools {
 task ValidateRemoteScriptExecution {
     $i = 0
     foreach ($Mount in $MountArray) {
+        $LoopCount = 1
         while ($true) {
-            $LoopCount = 1
             Write-Verbose -Message "Testing script execution on '$($Config.virtualMachines[$i].mountName)', attempt '$LoopCount'..." -Verbose
             $splat = @{
                 ScriptText      = 'hostname'
