@@ -46,8 +46,13 @@ task CreateLiveMount {
     [Array]$Script:MountArray = $null
     foreach ($VM in $Config.virtualMachines) {
         # Check if there is already an existing live mount with the same name
-        if ( (Get-RubrikMount).mountedVmId | ForEach-Object { (Get-RubrikVM  -ID $_).name } | Select-String -Pattern "^$($VM.mountName)$" ) {
-            throw "The live mount $($VM.mountName) already exists. Please remove manually."
+        if ( ( $MountTest = (Get-RubrikMount).mountedVmId | Where-Object {$_.total -ne 0} ) ) {
+            if ($MountTest |
+                ForEach-Object {
+                    (Get-RubrikVM -ID $_ -EA 0).name
+                } | Select-String -Pattern "^$($VM.mountName)$" ) {
+                throw "The live mount $($VM.mountName) already exists. Please remove manually."
+            }
         }
         # The resulting Live Mount has the network interface disabled
         $MountRequest = Get-RubrikVM $VM.name |
