@@ -227,8 +227,8 @@ ValidateLiveMountTools,
 ValidateRemoteScriptExecution
 
 task 4_LiveMountNetwork `
-MoveLiveMountNetwork,
-MoveLiveMountNetworkAddress
+MoveLiveMountNetworkAddress,
+MoveLiveMountNetwork
 
 task 5_Testing `
 LiveMountTest
