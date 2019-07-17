@@ -40,3 +40,5 @@ Thumbs.db
 ######################
 .vscode/
 credential/
+config/TestConf.json
+environment/TestEnv.json
