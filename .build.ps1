@@ -56,7 +56,7 @@ task CreateLiveMount {
         }
         # The resulting Live Mount has the network interface disabled         
         $MountRequest = Get-RubrikVM $VM.name |
-            Get-RubrikSnapshot -Date (Get-Date) | ForEach-Object {
+            Get-RubrikSnapshot -Date (Get-Date) | Where-Object {$_.id} | ForEach-Object {
                 New-RubrikMount -Id $_.id -MountName $VM.mountName -PowerOn:$true -DisableNetwork:$true -Confirm:$false
             }
         Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) Request Created: $($MountRequest.id)" -Verbose
