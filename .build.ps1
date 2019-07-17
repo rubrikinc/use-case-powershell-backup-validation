@@ -54,10 +54,11 @@ task CreateLiveMount {
                 throw "The live mount $($VM.mountName) already exists. Please remove manually."
             }
         }
-        # The resulting Live Mount has the network interface disabled
+        # The resulting Live Mount has the network interface disabled         
         $MountRequest = Get-RubrikVM $VM.name |
-            Get-RubrikSnapshot -Date (Get-Date) |
-            New-RubrikMount -MountName $VM.mountName -PowerOn:$true -DisableNetwork:$true -Confirm:$false
+            Get-RubrikSnapshot -Date (Get-Date) | ForEach-Object {
+                New-RubrikMount -Id $_.id -MountName $VM.mountName -PowerOn:$true -DisableNetwork:$true -Confirm:$false
+            }
         Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) Request Created: $($MountRequest.id)" -Verbose
         $Script:MountArray += $MountRequest
         $i++
@@ -77,7 +78,7 @@ task ValidateLiveMount {
             } elseif ($ValidateRequest -eq 'SUCCEEDED' -and $ValidatePowerOn -eq 'PoweredOn') {
                 break
             } else {
-                throw "$($Config.virtualMachines[$i].mountName) mount failed, exiting Build script. Previously live mounted VMs will continue running"
+                #throw "$($Config.virtualMachines[$i].mountName) mount failed, exiting Build script. Previously live mounted VMs will continue running"
             }
         }
         $i++
