@@ -88,12 +88,44 @@ task ValidateLiveMountTools {
             Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) VMware Tools Status: $ValidateTools" -Verbose
             if ($ValidateTools -ne 'guestToolsRunning') {
                 Start-Sleep 5
-            }
-            else {
+            } else {
                 break
             }
         }
         $i++
+    }
+}
+
+task ValidateRemoteScriptExecution {
+    foreach ($Mount in $MountArray) {
+        while ($true) {
+            $i = 1
+            Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) testing script execution, attempt '$i'..." -Verbose
+            $splat = @{
+                ScriptText      = '$SplatNewIP = @{
+                                    IPAddress = $Config.virtualMachines[$i].testIp
+                                    PrefixLength = $Config.virtualMachines[$i].testSubnet
+                                    DefaultGateway = $Config.virtualMachines[$i].testGateway
+                                    ErrorAction = "SilentlyContinue"
+                                  }
+                                  Get-NetAdapter | where {($_.MacAddress).ToLower() -eq "{0}"
+                                  New-NetIPAddress @SplatNewIP' -f $TestInterfaceMAC
+                ScriptType      = 'PowerShell'
+                VM              = $Config.virtualMachines[$i].mountName
+                GuestCredential = $GuestCredential
+            }
+            try {
+                $VMScript_return = Invoke-VMScript @splat -ErrorAction Stop
+                break
+            } catch { }
+            
+            $i++
+            Sleep -Seconds 5
+            
+            if ($i -gt 5) {
+                throw "Could not execute script on "$($Config.virtualMachines[$i].mountName)..."
+            }
+        }
     }
 }
 
@@ -181,7 +213,8 @@ ConnectVMware
 task 3_LiveMount `
 CreateLiveMount,
 ValidateLiveMount,
-ValidateLiveMountTools
+ValidateLiveMountTools,
+ValidateRemoteScriptExecution
 
 task 4_LiveMountNetwork `
 MoveLiveMountNetwork,
