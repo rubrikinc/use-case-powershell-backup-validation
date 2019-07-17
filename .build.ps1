@@ -108,20 +108,14 @@ task ValidateRemoteScriptExecution {
             $i = 1
             Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) testing script execution, attempt '$i'..." -Verbose
             $splat = @{
-                ScriptText      = '$SplatNewIP = @{
-                                    IPAddress = $Config.virtualMachines[$i].testIp
-                                    PrefixLength = $Config.virtualMachines[$i].testSubnet
-                                    DefaultGateway = $Config.virtualMachines[$i].testGateway
-                                    ErrorAction = "SilentlyContinue"
-                                  }
-                                  Get-NetAdapter | where {($_.MacAddress).ToLower() -eq "{0}"
-                                  New-NetIPAddress @SplatNewIP' -f $TestInterfaceMAC
+                ScriptText      = 'hostname'
                 ScriptType      = 'PowerShell'
                 VM              = $Config.virtualMachines[$i].mountName
                 GuestCredential = $GuestCredential
             }
             try {
                 $VMScript_return = Invoke-VMScript @splat -ErrorAction Stop
+                Write-Verbose -Message "ValidateRemoteScriptExecution returned '$VMScript_return'"
                 break
             } catch { }
             
