@@ -186,7 +186,8 @@ task MoveLiveMountNetworkAddress {
             VM              = $Config.virtualMachines[$i].mountName
             GuestCredential = $GuestCredential
         }
-        Write-Verbose "Remote script:`n$($splat['ScriptText'])" -Verbose
+        $lines = ($splat | out-string) -split "`n"
+        Write-Verbose "Remote script:`n$($lines)" -Verbose
         $output = Invoke-VMScript @splat -ErrorAction Stop
         Write-Verbose "Remote script output:`n$($output.ScriptOutput)" -Verbose
         $splat = @{
