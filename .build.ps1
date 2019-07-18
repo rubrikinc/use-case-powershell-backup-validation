@@ -106,6 +106,18 @@ task ValidateRemoteScriptExecution {
     $i = 0
     foreach ($Mount in $MountArray) {
         $LoopCount = 1
+        # Keeping the guest credential value local since it may only apply to the individual virtual machine in some cases
+        # Try per vm guest credentials first
+        if ( Get-Variable -Name "$Config.virtualMachines[$i].guestCred" -ErrorAction SilentlyContinue ) {
+            Write-Verbose -Message "Importing Credential file: $($IdentityPath + $($Config.virtualMachines[$i].guestCred))"
+            $GuestCredential = Import-Clixml -Path ($IdentityPath + $($Config.virtualMachines[$i].guestCred))
+        }
+        # Use global guest credentials
+        else {
+            Write-Verbose -Message "Importing Credential file: $($IdentityPath + "guestCred.XML")"
+            $GuestCredential = Import-Clixml -Path ($IdentityPath + "guestCred.XML")
+        }
+        # Find the first network interface's MAC 
         while ($true) {
             Write-Verbose -Message "Testing script execution on '$($Config.virtualMachines[$i].mountName)', attempt '$LoopCount'..." -Verbose
             $splat = @{
@@ -151,17 +163,17 @@ task MoveLiveMountNetwork {
 task MoveLiveMountNetworkAddress {
     $i = 0
     foreach ($Mount in $MountArray) {
-        # # Keeping the guest credential value local since it may only apply to the individual virtual machine in some cases
-        # # Try per vm guest credentials first
-        # if ( Get-Variable -Name "$Config.virtualMachines[$i].guestCred" -ErrorAction SilentlyContinue ) {
-        #     Write-Verbose -Message "Importing Credential file: $($IdentityPath + $($Config.virtualMachines[$i].guestCred))"
-        #     $GuestCredential = Import-Clixml -Path ($IdentityPath + $($Config.virtualMachines[$i].guestCred))
-        # }
-        # # Use global guest credentials
-        # else {
-        #     Write-Verbose -Message "Importing Credential file: $($IdentityPath + "guestCred.XML")"
-        #     $GuestCredential = Import-Clixml -Path ($IdentityPath + "guestCred.XML")
-        # }
+        # Keeping the guest credential value local since it may only apply to the individual virtual machine in some cases
+        # Try per vm guest credentials first
+        if ( Get-Variable -Name "$Config.virtualMachines[$i].guestCred" -ErrorAction SilentlyContinue ) {
+            Write-Verbose -Message "Importing Credential file: $($IdentityPath + $($Config.virtualMachines[$i].guestCred))"
+            $GuestCredential = Import-Clixml -Path ($IdentityPath + $($Config.virtualMachines[$i].guestCred))
+        }
+        # Use global guest credentials
+        else {
+            Write-Verbose -Message "Importing Credential file: $($IdentityPath + "guestCred.XML")"
+            $GuestCredential = Import-Clixml -Path ($IdentityPath + "guestCred.XML")
+        }
         # Find the first network interface's MAC 
         $TestInterfaceMAC = ((Get-NetworkAdapter -VM $Config.virtualMachines[$i].mountName | Select-Object -first 1).MacAddress).ToLower() -replace ":","-"
         $splat = @{
