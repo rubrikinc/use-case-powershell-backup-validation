@@ -165,12 +165,12 @@ task MoveLiveMountNetworkAddress {
         # Keeping the guest credential value local since it may only apply to the individual virtual machine in some cases
         # Try per vm guest credentials first
         if ( Get-Variable -Name "$Config.virtualMachines[$i].guestCred" -ErrorAction SilentlyContinue ) {
-            Write-Verbose -Message "Importing Credential file: $($IdentityPath + $($Config.virtualMachines[$i].guestCred))"
+            Write-Verbose -Message "Importing Credential file: $($IdentityPath + $($Config.virtualMachines[$i].guestCred))" -Verbose
             $GuestCredential = Import-Clixml -Path ($IdentityPath + $($Config.virtualMachines[$i].guestCred))
         }
         # Use global guest credentials
         else {
-            Write-Verbose -Message "Importing Credential file: $($IdentityPath + "guestCred.XML")"
+            Write-Verbose -Message "Importing Credential file: $($IdentityPath + "guestCred.XML")" -Verbose
             $GuestCredential = Import-Clixml -Path ($IdentityPath + "guestCred.XML")
         }
         # Find the first network interface's MAC 
