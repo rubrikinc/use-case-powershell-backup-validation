@@ -235,6 +235,21 @@ task Cleanup {
     }
 }
 
+task CleanAll {
+    foreach ($VM in $Config.virtualMachines) {
+        # Check if there is already an existing live mount with the same name
+        if ( $MountTest = (Get-RubrikMount -VMID (Get-RubrikVM -VM "$VM.name").id) | Where-Object {$_.total -ne 0} ) {
+            $MountTest | ForEach-Object {
+                    If ( (Get-RubrikVM -ID $_ -EA 0).name -eq $VM.mountName ) {
+                        Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) removing this live mount" -Verbose        
+                        Remove-RubrikMount $_
+                }
+            }
+        }
+    }
+}
+
+
 task 1_Init `
 GetConfig
 
