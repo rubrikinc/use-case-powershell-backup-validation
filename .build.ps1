@@ -188,7 +188,19 @@ task MoveLiveMountNetworkAddress {
         }
         $output = Invoke-VMScript @splat -ErrorAction Stop
         $splat = @{
-            ScriptText      = '(Get-NetAdapter| where {($_.MacAddress).ToLower() -eq "' + $TestInterfaceMAC + '"} | Get-NetIPAddress -AddressFamily IPv4).IPAddress'
+            ScriptText      = 'function Elevate-Process  {
+                                param ([string]$exe = $(Throw "Pleave provide the name and path of an executable"),[string]$arguments)
+                                $startinfo = new-object System.Diagnostics.ProcessStartInfo 
+                                $startinfo.FileName = $exe
+                                $startinfo.Arguments = $arguments 
+                                $startinfo.verb = "RunAs" 
+                                $process = [System.Diagnostics.Process]::Start($startinfo)
+                            }
+                            function QueryIP  {
+                               Get-NetAdapter| where {($_.MacAddress).ToLower() -eq "' + $TestInterfaceMAC + '"} 
+                               | Get-NetIPAddress -AddressFamily IPv4).IPAddress
+                            }
+                            Elevate-Process -Exe powershell.exe -Arguments "-noninteractive -command QueryIP > C:\rubrik.txt"'     
             ScriptType      = 'PowerShell'
             VM              = $Config.virtualMachines[$i].mountName
             GuestCredential = $GuestCredential
