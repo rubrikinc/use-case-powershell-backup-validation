@@ -183,6 +183,7 @@ task MoveLiveMountNetworkAddress {
             VM              = $Config.virtualMachines[$i].mountName
             GuestCredential = $GuestCredential
         }
+        Write-Verbose -Message "Changing ip of $($Config.virtualMachines[$i].mountName) to $($Config.virtualMachines[$i].testIp)." -Verbose
         $output = Invoke-VMScript @splat -ErrorAction Stop
         $splat = @{
             ScriptText      = '(Get-NetAdapter| where {($_.MacAddress).ToLower() -eq "' + $TestInterfaceMAC + '"} | Get-NetIPAddress -AddressFamily IPv4).IPAddress'
@@ -190,13 +191,14 @@ task MoveLiveMountNetworkAddress {
             VM              = $Config.virtualMachines[$i].mountName
             GuestCredential = $GuestCredential
         }
+        Write-Verbose -Message "Verifying new ip of $($Config.virtualMachines[$i].mountName)." -Verbose
         $output = Invoke-VMScript @splat -ErrorAction Stop
-        $new_ip = $output.ScriptOutput -replace "`r`n", ""
+        $new_ip = $($output.ScriptOutput | Out-String).Trim().Split("`r`n")[-1]
         if ( $new_ip -eq $Config.virtualMachines[$i].testIp ) {
             Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) Network Address Status: Assigned to $($new_ip)"
         }
         else {
-            throw "$($Config.virtualMachines[$i].mountName) changing ip to $($Config.virtualMachines[$i].testIp) failed, exiting Build script. Previously live mounted VMs will continue running"
+            throw "$($Config.virtualMachines[$i].mountName) changing ip to $($Config.virtualMachines[$i].testIp) failed (is still $($newip)), exiting Build script. Previously live mounted VMs will continue running"
         }
         $i++
     }
