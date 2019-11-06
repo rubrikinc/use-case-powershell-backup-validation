@@ -13,8 +13,13 @@ task Ping {
 }
 
 task Port80 {
-    # Test-NetConnection seems not be available on macOS
-    assert (Test-Connection $Config.testIp -TCPPort 80) "Unable to connect to port 80 of the server."
+    if ( $(Get-PSVersion).Major -ge 6 ) { 
+        # Test-NetConnection is not available on core non Windows
+        assert (Test-Connection $Config.testIp -TCPPort 80) "Unable to connect to port 80 of the server."
+    } 
+    else {
+        assert (Test-NetConnection $Config.testIp -Port 80) "Unable to connect to port 80 of the server."
+    }
 }
 
 #
