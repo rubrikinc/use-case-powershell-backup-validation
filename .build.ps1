@@ -106,6 +106,17 @@ task ValidateRemoteScriptExecution {
     $i = 0
     foreach ($Mount in $MountArray) {
         $LoopCount = 1
+        # Keeping the guest credential value local since it may only apply to the individual virtual machine in some cases
+        # Try per vm guest credentials first
+        if ( Get-Variable -Name "$Config.virtualMachines[$i].guestCred" -ErrorAction SilentlyContinue ) {
+            Write-Verbose -Message "Importing Credential file: $($IdentityPath + $($Config.virtualMachines[$i].guestCred))" -Verbose
+            $GuestCredential = Import-Clixml -Path ($IdentityPath + $($Config.virtualMachines[$i].guestCred))
+        }
+        # Use global guest credentials
+        else {
+            Write-Verbose -Message "Importing Credential file: $($IdentityPath + "guestCred.XML")" -Verbose
+            $GuestCredential = Import-Clixml -Path ($IdentityPath + "guestCred.XML")
+        }
         while ($true) {
             Write-Verbose -Message "Testing script execution on '$($Config.virtualMachines[$i].mountName)', attempt '$LoopCount'..." -Verbose
             $splat = @{
@@ -164,6 +175,7 @@ task MoveLiveMountNetworkAddress {
         $splat = @{
             ScriptText      = 'Get-NetAdapter | where {($_.MacAddress).ToLower() -eq "' + $TestInterfaceMAC + '"} | Remove-NetRoute -Confirm:$false -ErrorAction SilentlyContinue;`
                                Get-NetAdapter | where {($_.MacAddress).ToLower() -eq "' + $TestInterfaceMAC + '"} | Get-NetIPAddress | Remove-NetIPAddress -confirm:$false;`
+                               Get-NetAdapter | where {($_.MacAddress).ToLower() -eq "' + $TestInterfaceMAC + '"} | Set-NetIPInterface -DHCP Disable;`
                                Get-NetAdapter | where {($_.MacAddress).ToLower() -eq "' + $TestInterfaceMAC + '"} | `
                                New-NetIPAddress -IPAddress ' + $Config.virtualMachines[$i].testIp + ' -PrefixLength ' + $Config.virtualMachines[$i].testSubnet + `
                                ' -DefaultGateway ' + $Config.virtualMachines[$i].testGateway
@@ -171,6 +183,7 @@ task MoveLiveMountNetworkAddress {
             VM              = $Config.virtualMachines[$i].mountName
             GuestCredential = $GuestCredential
         }
+        Write-Verbose -Message "Changing ip of $($Config.virtualMachines[$i].mountName) to $($Config.virtualMachines[$i].testIp)." -Verbose
         $output = Invoke-VMScript @splat -ErrorAction Stop
         $splat = @{
             ScriptText      = '(Get-NetAdapter| where {($_.MacAddress).ToLower() -eq "' + $TestInterfaceMAC + '"} | Get-NetIPAddress -AddressFamily IPv4).IPAddress'
@@ -178,13 +191,14 @@ task MoveLiveMountNetworkAddress {
             VM              = $Config.virtualMachines[$i].mountName
             GuestCredential = $GuestCredential
         }
+        Write-Verbose -Message "Verifying new ip of $($Config.virtualMachines[$i].mountName)." -Verbose
         $output = Invoke-VMScript @splat -ErrorAction Stop
-        $new_ip = $output.ScriptOutput -replace "`r`n", ""
+        $new_ip = $($output.ScriptOutput | Out-String).Trim().Split("`r`n")[-1]
         if ( $new_ip -eq $Config.virtualMachines[$i].testIp ) {
             Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) Network Address Status: Assigned to $($new_ip)"
         }
         else {
-            throw "$($Config.virtualMachines[$i].mountName) changing ip to $($Config.virtualMachines[$i].testIp) failed, exiting Build script. Previously live mounted VMs will continue running"
+            throw "$($Config.virtualMachines[$i].mountName) changing ip to $($Config.virtualMachines[$i].testIp) failed (is still $($newip)), exiting Build script. Previously live mounted VMs will continue running"
         }
         $i++
     }
@@ -197,7 +211,16 @@ task LiveMountTest {
         Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) Test Status: Loading the following tests - $($Config.virtualMachines[$i].tasks)" -Verbose
         # Keeping the guest credential value local since it may only apply to the individual virtual machine in some cases
         # Not all tests will need a guest credential, but it's there in case required
+        # Try per vm guest credentials first
+        if ( Get-Variable -Name "$Config.virtualMachines[$i].guestCred" -ErrorAction SilentlyContinue ) {
+            Write-Verbose -Message "Importing Credential file: $($IdentityPath + $($Config.virtualMachines[$i].guestCred))" -Verbose
         $GuestCredential = Import-Clixml -Path ($IdentityPath + $($Config.virtualMachines[$i].guestCred))
+        }
+        # Use global guest credentials
+        else {
+            Write-Verbose -Message "Importing Credential file: $($IdentityPath + "guestCred.XML")" -Verbose
+            $GuestCredential = Import-Clixml -Path ($IdentityPath + "guestCred.XML")
+        }
         Invoke-Build -File .\tests.ps1 -Task $Config.virtualMachines[$i].tasks -Config $Config.virtualMachines[$i] -GuestCredential $GuestCredential
         Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) Test Status: Testing complete" -Verbose
         $i++
