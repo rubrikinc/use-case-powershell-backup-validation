@@ -186,6 +186,7 @@ task MoveLiveMountNetworkAddress {
             VM              = $Config.virtualMachines[$i].mountName
             GuestCredential = $GuestCredential
         }
+        Write-Verbose -Message "Changing ip of $($Config.virtualMachines[$i].mountName) to $($Config.virtualMachines[$i].testIp)." -Verbose
         $output = Invoke-VMScript @splat -ErrorAction Stop
         $splat = @{
             ScriptText      = 'function Elevate-Process  {
@@ -205,8 +206,9 @@ task MoveLiveMountNetworkAddress {
             VM              = $Config.virtualMachines[$i].mountName
             GuestCredential = $GuestCredential
         }
+        Write-Verbose -Message "Verifying new ip of $($Config.virtualMachines[$i].mountName)." -Verbose
         $output = Invoke-VMScript @splat -ErrorAction Stop
-        $new_ip = $output.ScriptOutput -replace "`r`n", ""
+        $new_ip = $($output.ScriptOutput | Out-String).Trim().Split("`r`n")[-1]
         if ( $new_ip -eq $Config.virtualMachines[$i].testIp ) {
             Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) Network Address Status: Assigned to $($new_ip)"
         }
@@ -224,7 +226,16 @@ task LiveMountTest {
         Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) Test Status: Loading the following tests - $($Config.virtualMachines[$i].tasks)" -Verbose
         # Keeping the guest credential value local since it may only apply to the individual virtual machine in some cases
         # Not all tests will need a guest credential, but it's there in case required
+        # Try per vm guest credentials first
+        if ( Get-Variable -Name "$Config.virtualMachines[$i].guestCred" -ErrorAction SilentlyContinue ) {
+            Write-Verbose -Message "Importing Credential file: $($IdentityPath + $($Config.virtualMachines[$i].guestCred))" -Verbose
         $GuestCredential = Import-Clixml -Path ($IdentityPath + $($Config.virtualMachines[$i].guestCred))
+        }
+        # Use global guest credentials
+        else {
+            Write-Verbose -Message "Importing Credential file: $($IdentityPath + "guestCred.XML")" -Verbose
+            $GuestCredential = Import-Clixml -Path ($IdentityPath + "guestCred.XML")
+        }
         Invoke-Build -File .\tests.ps1 -Task $Config.virtualMachines[$i].tasks -Config $Config.virtualMachines[$i] -GuestCredential $GuestCredential
         Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) Test Status: Testing complete" -Verbose
         $i++
