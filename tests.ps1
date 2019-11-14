@@ -14,11 +14,21 @@ task Ping {
 
 task Port80 {
     if ( $(Get-PSVersion).Major -ge 6 ) { 
-        # Test-NetConnection is not available on core non Windows
-        assert (Test-Connection $Config.testIp -TCPPort 80) "Unable to connect to port 80 of the server."
+        # Test-NetConnection is not available on core non Windows, older versions of Windows do not contain test net-connection so implemented an additional fall back with .Net.Sockets.
+        assert (
+            Test-Connection $Config.testIp -TCPPort 80
+        ) "Unable to connect to port 80 of the server."
     } 
     else {
-        assert (Test-NetConnection $Config.testIp -Port 80) "Unable to connect to port 80 of the server."
+        if (Get-Command -Name Test-NetConnection -ErrorAction SilentlyContinue) {
+            assert (
+                Test-NetConnection $Config.testIp -Port 80
+            ) "Unable to connect to port 80 of the server."
+        } else {
+            assert (
+                $(try {$socket = New-Object Net.Sockets.TcpClient($Config.testIp, 80);if ($socket.Connected) {$true};$socket.Close()} catch {})
+            ) "Unable to connect to port 80 of the server."
+        }
     }
 }
 

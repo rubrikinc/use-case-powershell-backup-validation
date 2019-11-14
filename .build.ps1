@@ -163,14 +163,17 @@ task MoveLiveMountNetworkAddress {
     $i = 0
     foreach ($Mount in $MountArray) {
         # Keeping the guest credential value local since it may only apply to the individual virtual machine in some cases
+        # Try per vm guest credentials first
         if ( Get-Variable -Name "$Config.virtualMachines[$i].guestCred" -ErrorAction SilentlyContinue ) {
-            Write-Verbose -Message "Importing Credential file: $($IdentityPath + $($Config.virtualMachines[$i].guestCred))"
+            Write-Verbose -Message "Importing Credential file: $($IdentityPath + $($Config.virtualMachines[$i].guestCred))" -Verbose
             $GuestCredential = Import-Clixml -Path ($IdentityPath + $($Config.virtualMachines[$i].guestCred))
         }
+        # Use global guest credentials
         else {
-            Write-Verbose -Message "Importing Credential file: $($IdentityPath + "guestCred.XML")"
+            Write-Verbose -Message "Importing Credential file: $($IdentityPath + "guestCred.XML")" -Verbose
             $GuestCredential = Import-Clixml -Path ($IdentityPath + "guestCred.XML")
         }
+        # Find the first network interface's MAC 
         $TestInterfaceMAC = ((Get-NetworkAdapter -VM $Config.virtualMachines[$i].mountName | Select-Object -first 1).MacAddress).ToLower() -replace ":","-"
         $splat = @{
             ScriptText      = 'Get-NetAdapter | where {($_.MacAddress).ToLower() -eq "' + $TestInterfaceMAC + '"} | Remove-NetRoute -Confirm:$false -ErrorAction SilentlyContinue;`
@@ -186,7 +189,19 @@ task MoveLiveMountNetworkAddress {
         Write-Verbose -Message "Changing ip of $($Config.virtualMachines[$i].mountName) to $($Config.virtualMachines[$i].testIp)." -Verbose
         $output = Invoke-VMScript @splat -ErrorAction Stop
         $splat = @{
-            ScriptText      = '(Get-NetAdapter| where {($_.MacAddress).ToLower() -eq "' + $TestInterfaceMAC + '"} | Get-NetIPAddress -AddressFamily IPv4).IPAddress'
+            ScriptText      = 'function Elevate-Process  {
+                                param ([string]$exe = $(Throw "Pleave provide the name and path of an executable"),[string]$arguments)
+                                $startinfo = new-object System.Diagnostics.ProcessStartInfo 
+                                $startinfo.FileName = $exe
+                                $startinfo.Arguments = $arguments 
+                                $startinfo.verb = "RunAs" 
+                                $process = [System.Diagnostics.Process]::Start($startinfo)
+                            }
+                            function QueryIP  {
+                               Get-NetAdapter| where {($_.MacAddress).ToLower() -eq "' + $TestInterfaceMAC + '"} 
+                               | Get-NetIPAddress -AddressFamily IPv4).IPAddress
+                            }
+                            Elevate-Process -Exe powershell.exe -Arguments "-noninteractive -command QueryIP > C:\rubrik.txt"'     
             ScriptType      = 'PowerShell'
             VM              = $Config.virtualMachines[$i].mountName
             GuestCredential = $GuestCredential
@@ -198,7 +213,7 @@ task MoveLiveMountNetworkAddress {
             Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) Network Address Status: Assigned to $($new_ip)"
         }
         else {
-            throw "$($Config.virtualMachines[$i].mountName) changing ip to $($Config.virtualMachines[$i].testIp) failed (is still $($newip)), exiting Build script. Previously live mounted VMs will continue running"
+            throw "$($Config.virtualMachines[$i].mountName) changing ip to $($Config.virtualMachines[$i].testIp) failed, exiting Build script.  Previously live mounted VMs will continue running"
         }
         $i++
     }
@@ -237,6 +252,21 @@ task Cleanup {
         $i++
     }
 }
+
+task CleanAll {
+    foreach ($VM in $Config.virtualMachines) {
+        # Check if there is already an existing live mount with the same name
+        if ( $MountTest = (Get-RubrikMount -VMID (Get-RubrikVM -VM "$VM.name").id) | Where-Object {$_.total -ne 0} ) {
+            $MountTest | ForEach-Object {
+                    If ( (Get-RubrikVM -ID $_ -EA 0).name -eq $VM.mountName ) {
+                        Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) removing this live mount" -Verbose        
+                        Remove-RubrikMount $_
+                }
+            }
+        }
+    }
+}
+
 
 task 1_Init `
 GetConfig
