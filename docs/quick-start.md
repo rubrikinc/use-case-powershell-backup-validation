@@ -57,14 +57,14 @@ Alternatively, we can use the `Get-Module` cmdlet to verify if all modules are s
 The output shows that all modules are successfully installed on this system.
 
 ## Components
-In order to get started with Backup Validation there are several components that you need to understand. The PowerShell Modules that are required to run and connect to both vCenter cluster and Rubrik cluster, and the InvokeBuild module that will execute the build tasks. 
+In order to get started with Backup Validation there are several components that you need to understand. The PowerShell Modules that are required to run and connect to both vCenter cluster and Rubrik cluster, and the InvokeBuild module that will execute the build tasks.
 
 Then we will move on the different configuration and credential files and how these files tie into the backup validation process.
 
 Finally, we will look at the `.build.ps1` file, what it contains and how we can make additions to this.
 
 ### PowerShell Modules
-This use case leverages several PowerShell modules, outlined in this section. 
+This use case leverages several PowerShell modules, outlined in this section.
 
 #### Rubrik SDK for PowerShell
 Rubrik’s API first architecture enables organizations to embrace and integrate Rubrik functionality into their existing automation processes. While Rubrik APIs can be consumed natively, companies are at various stages in their automation journey with different levels of automation knowledge on staff. The Rubrik SDK for PowerShell is a project that provides a Microsoft PowerShell module for managing and monitoring Rubrik's Cloud Data Management fabric by way of published RESTful APIs.
@@ -136,9 +136,9 @@ Use the [`generateCreds.ps1`](https://github.com/rubrikinc/PowerShell-Backup-Val
 param(
     $Path
 )
- 
-$CredType = @("rubrikCreds.xml","vmwareCreds.xml","guestCreds.xml")
- 
+
+$CredType = @("rubrikCred.xml","vmwareCred.xml","guestCred.xml")
+
 foreach ($Type in $CredType) {
     $Credential = Get-Credential -Message $Type
     $Credential | Export-Clixml -Path ($Path + "\" + $Type)
@@ -209,20 +209,20 @@ At the end of the script we will logically group together the different build ta
 ```
 task 1_Init `
 GetConfig
- 
+
 task 2_Connect `
 ConnectRubrik,
 ConnectVMware
- 
+
 task 3_LiveMount `
 CreateLiveMount,
 ValidateLiveMount,
 ValidateLiveMountTools
- 
+
 task 4_LiveMountNetwork `
 MoveLiveMountNetwork,
 MoveLiveMountNetworkAddress
- 
+
 task 5_Testing `
 LiveMountTest
 ```
@@ -255,7 +255,7 @@ task Ping {
 The `tests.ps1` file can be updated with additional tests, and once these tests have been created they can be added to the Config JSON files for the relevant systems.
 
 ## Validate Backup
-Now that we have all components in place, we will create our own backup validation workflow. 
+Now that we have all components in place, we will create our own backup validation workflow.
 
 ### Prepare the Environment
 To get started we will download the Build Validation package and extract it to a folder named “Backup Validations”. The package is available in the [PowerShell-Backup-Validation](https://github.com/rubrikinc/Use-Case-PowerShell-Backup-Validation) repository. The zipped file is available for download [here](https://github.com/rubrikinc/PowerShell-Backup-Validation/archive/master.zip).
@@ -272,7 +272,7 @@ In the Config files a number of configuration options are available:
 * `mountName` - the name of the live mount
 * `guestCred` - the credentials file, only the filename is required, no path needs to be specified
 * `testIp` - IP Address configured for Live Mounted VM
-* `testNetwork` - virtual network used by the adapter of the Live Mount 
+* `testNetwork` - virtual network used by the adapter of the Live Mount
 * `testGateway` - the gateway address of the network adapter
 * `tasks` - which tasks will run against this specific VM
 
@@ -368,7 +368,7 @@ Get-RubrikVM | Get-Random | ForEach-Object {
 }
 ```
 
-This will select a random virtual machine and create a `config.json` which can then be used for backup validation. 
+This will select a random virtual machine and create a `config.json` which can then be used for backup validation.
 
 ### Run `Invoke-Build`
 Once the Environment, Config, and Identity requirements are met, use the `Invoke-Build` function to execute a build. Here is a sample command using a PowerShell technique called splatting to store the parameters and arguments and execute `Invoke-Build`.
@@ -380,7 +380,7 @@ $Splat = @{
     ConfigFile      = '.\config\TestConfiguration.json'
     IdentityPath    = '.\credentials'
     }
- 
+
 Invoke-Build @Splat -Result Result
 ```
 
