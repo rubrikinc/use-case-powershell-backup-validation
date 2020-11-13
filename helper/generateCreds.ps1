@@ -2,7 +2,7 @@ param(
     $Path
 )
 
-$CredType = @("rubrikCreds.xml","vmwareCreds.xml","guestCreds.xml")
+$CredType = @("rubrikCred.xml","vmwareCred.xml","guestCred.xml")
 
 foreach ($Type in $CredType) {
     $Credential = Get-Credential -Message $Type
