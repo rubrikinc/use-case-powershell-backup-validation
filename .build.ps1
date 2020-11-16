@@ -187,7 +187,6 @@ task MoveLiveMountNetworkAddress {
             GuestCredential = $GuestCredential
         }
         Write-Verbose -Message "Changing ip of $($Config.virtualMachines[$i].mountName) to $($Config.virtualMachines[$i].testIp)." -Verbose
-
         $output = Invoke-VMScript @splat -ErrorAction Stop
         $splat = @{
             ScriptText      = '(Get-NetAdapter| where {($_.MacAddress).ToLower() -eq "' + $TestInterfaceMAC + '"} | Get-NetIPAddress -AddressFamily IPv4).IPAddress'
@@ -198,9 +197,7 @@ task MoveLiveMountNetworkAddress {
         Write-Verbose -Message "Verifying new ip of $($Config.virtualMachines[$i].mountName)." -Verbose
         $output = Invoke-VMScript @splat -ErrorAction Stop
         $new_ip = $($output.ScriptOutput | Out-String).Trim().Split("`r`n")[-1]
-        #if ( $new_ip -eq $Config.virtualMachines[$i].testIp ) {
         if ($($output.ScriptOutput | Out-String).Trim().Split("`r`n").contains($config.virtualMachines[$i].testIp) ) {
-
             Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) Network Address Status: Assigned to $($new_ip)"
         }
         else {
