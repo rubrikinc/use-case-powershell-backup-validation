@@ -190,19 +190,7 @@ task MoveLiveMountNetworkAddress {
 
         $output = Invoke-VMScript @splat -ErrorAction Stop
         $splat = @{
-            ScriptText      = 'function Elevate-Process  {
-                                param ([string]$exe = $(Throw "Pleave provide the name and path of an executable"),[string]$arguments)
-                                $startinfo = new-object System.Diagnostics.ProcessStartInfo
-                                $startinfo.FileName = $exe
-                                $startinfo.Arguments = $arguments
-                                $startinfo.verb = "RunAs"
-                                $process = [System.Diagnostics.Process]::Start($startinfo)
-                            }
-                            function QueryIP  {
-                               Get-NetAdapter| where {($_.MacAddress).ToLower() -eq "' + $TestInterfaceMAC + '"}
-                               | Get-NetIPAddress -AddressFamily IPv4).IPAddress
-                            }
-                            Elevate-Process -Exe powershell.exe -Arguments "-noninteractive -command QueryIP > C:\rubrik.txt"'
+            ScriptText      = '(Get-NetAdapter| where {($_.MacAddress).ToLower() -eq "' + $TestInterfaceMAC + '"} | Get-NetIPAddress -AddressFamily IPv4).IPAddress'
             ScriptType      = 'PowerShell'
             VM              = $Config.virtualMachines[$i].mountName
             GuestCredential = $GuestCredential
@@ -210,7 +198,9 @@ task MoveLiveMountNetworkAddress {
         Write-Verbose -Message "Verifying new ip of $($Config.virtualMachines[$i].mountName)." -Verbose
         $output = Invoke-VMScript @splat -ErrorAction Stop
         $new_ip = $($output.ScriptOutput | Out-String).Trim().Split("`r`n")[-1]
-        if ( $new_ip -eq $Config.virtualMachines[$i].testIp ) {
+        #if ( $new_ip -eq $Config.virtualMachines[$i].testIp ) {
+        if ($($output.ScriptOutput | Out-String).Trim().Split("`r`n").contains($config.virtualMachines[$i].testIp) ) {
+
             Write-Verbose -Message "$($Config.virtualMachines[$i].mountName) Network Address Status: Assigned to $($new_ip)"
         }
         else {
